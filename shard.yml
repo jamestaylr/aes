@@ -1,0 +1,10 @@
+name: aes
+version: 0.1.0
+
+authors:
+  - James Taylor <jamestaylr@gmail.com>
+
+description: |
+    AES implementation with cryptographic helper functions
+
+license: MIT
