@@ -13,3 +13,50 @@ struct UInt16
   # TODO prevent global scoping out of AES module
   include BitAccess
 end
+
+module AES
+  struct FiniteField
+    property value : UInt16
+
+    def initialize(value : Int)
+      @value = value.to_u16
+    end
+
+    def +(other)
+      FiniteField.new(value ^ other.value)
+    end
+
+    def -(other)
+      FiniteField.new(value ^ other.value)
+    end
+
+    def *(other)
+      p = 0
+      (0..degree(other.value)).each do |i|
+        # TODO guard against timing attacks
+        if other.value.to_u16[i] != 0
+          p = (@value << i) ^ @value
+        end
+      end
+      FiniteField.new(p) % AES::Utils::BASE_POLYNOMIAL
+    end
+
+    def %(other)
+      dv = degree(@value)
+      dc = degree(other.value)
+
+      p = @value
+      (0..dv - dc).reverse_each do |i|
+        # TODO guard against timing attacks
+        if p.to_u16[i + dc] != 0
+          p = (other.value << i) ^ p
+        end
+      end
+      FiniteField.new(p)
+    end
+  end
+
+  class Utils
+    BASE_POLYNOMIAL = FiniteField.new(0b100011011)
+  end
+end
