@@ -41,6 +41,10 @@ module AES
       FiniteField.new(p) % AES::Utils::BASE_POLYNOMIAL
     end
 
+    private def degree(n)
+      n.to_s(2).chars.size - 1
+    end
+
     def %(other)
       dv = degree(@value)
       dc = degree(other.value)
@@ -58,5 +62,27 @@ module AES
 
   class Utils
     BASE_POLYNOMIAL = FiniteField.new(0b100011011)
+
+    def initialize
+      @log_table = Array(UInt16).new(size = 256, value = 0.to_u16)
+      @antilog_table = Array(UInt16).new(size = 256, value = 0.to_u16)
+
+      g = FiniteField.new(3)
+      t = FiniteField.new(1)
+      (0...255).map { |x| x.to_u16 }.each do |i|
+        @log_table[t.value] = i
+        @antilog_table[i] = t.value
+        t *= g
+      end
+    end
+
+    def modular_inverse(a)
+      if a == 0
+        return a
+      end
+
+      x = 255 - @log_table[a.clamp(0..255)]
+      FiniteField.new(@antilog_table[x])
+    end
   end
 end
