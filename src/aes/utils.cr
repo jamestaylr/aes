@@ -38,7 +38,7 @@ module AES
           p = (@value << i) ^ @value
         end
       end
-      FiniteField.new(p) % AES::Utils::BASE_POLYNOMIAL
+      FiniteField.new(p) % AES::BASE_POLYNOMIAL
     end
 
     private def degree(n)
@@ -61,7 +61,6 @@ module AES
   end
 
   class Utils
-    BASE_POLYNOMIAL = FiniteField.new(0b100011011)
 
     def initialize
       @log_table = Array(UInt16).new(size = 256, value = 0.to_u16)
