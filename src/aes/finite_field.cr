@@ -31,14 +31,20 @@ module AES
     end
 
     def *(other)
-      p = 0
-      (0..degree(other.value)).each do |i|
-        # TODO guard against timing attacks
-        if other.value.to_u16[i] != 0
-          p = (@value << i) ^ @value
+      p = 0x0
+      a = @value
+      b = other.value
+      (0...8).each do |i|
+        hbit = a & 0x80
+        if ((b >> i) & 0x01 == 0x01)
+          p ^= a
+        end
+        a <<= 1
+        if (hbit == 0x80)
+          a ^= 0x1b
         end
       end
-      FiniteField.new(p) % AES::BASE_POLYNOMIAL
+      FiniteField.new(p)
     end
 
     private def degree(n)
