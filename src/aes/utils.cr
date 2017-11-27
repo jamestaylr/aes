@@ -13,6 +13,22 @@ module AES
       end
     end
 
+    def rot_word(w : Array(UInt8))
+      w[1, 3] << w[0]
+    end
+
+    def sub_word(w : Array(UInt8))
+      w.map { |j| AES::SBOX[j] }
+    end
+
+    def rcon(round : Int)
+      a = FiniteField.new(0x1)
+      (0...round).each do |r|
+        a = a * FiniteField.new(2)
+      end
+      a.value
+    end
+
     def modular_inverse(a)
       if a == 0
         return a
