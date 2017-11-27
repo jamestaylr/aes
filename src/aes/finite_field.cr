@@ -34,15 +34,18 @@ module AES
       p = 0x0
       a = @value
       b = other.value
+
       (0...8).each do |i|
         hbit = a & 0x80
-        if ((b >> i) & 0x01 == 0x01)
+        if b & 0x1 == 0x1
           p ^= a
         end
+
         a <<= 1
-        if (hbit == 0x80)
+        if hbit == 0x80
           a ^= 0x1b
         end
+        b >>= 1
       end
       FiniteField.new(p)
     end
