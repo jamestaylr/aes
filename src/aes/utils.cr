@@ -1,12 +1,12 @@
 module AES
   class Utils
     def initialize
-      @log_table = Array(UInt16).new(size = 256, value = 0.to_u16)
-      @antilog_table = Array(UInt16).new(size = 256, value = 0.to_u16)
+      @log_table = Array(UInt8).new(size = 256, value = 0.to_u8)
+      @antilog_table = Array(UInt8).new(size = 256, value = 0.to_u8)
 
       g = FiniteField.new(3)
       t = FiniteField.new(1)
-      (0...255).map { |x| x.to_u16 }.each do |i|
+      (0...255).map { |x| x.to_u8 }.each do |i|
         @log_table[t.value] = i
         @antilog_table[i] = t.value
         t *= g
