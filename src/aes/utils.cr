@@ -43,6 +43,30 @@ module AES
       a.value
     end
 
+    def key_expansion(key : Array(UInt8))
+      w = Array(UInt8).new(4 * AES::NUM_COLUMNS * (@num_rounds + 1), 0.to_u8)
+      w.fill(0, 4 * @key_size) { |j| key[j] }
+
+      # Expand the key
+      (@key_size...AES::NUM_COLUMNS * (@num_rounds + 1)).each do |i|
+        ekc = (0...4).map { |j| w[((i - 1) * 4) + j] }
+        ekp = (0...4).map { |j| w[((i - @key_size) * 4) + j] }
+
+        if i % @key_size == 0
+          ekc = sub_word(rot_word(ekc))
+          ekc[0] ^= rcon((i / @key_size) - 1)
+        elsif @key_size == 8 && i % 4 == 0
+          ekc = sub_word(ekc)
+        else
+          ekc = ekc.map { |j| j.to_i32 }
+        end
+
+        temp = ekc.zip(ekp).map { |j, k| j ^ k }
+        w.fill(i * 4, 4) { |j| temp[j % 4].to_u8 }
+      end
+      w
+    end
+
     def modular_inverse(a)
       if a == 0
         return a
