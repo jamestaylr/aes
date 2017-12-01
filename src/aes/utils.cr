@@ -1,6 +1,20 @@
 module AES
   class Utils
-    def initialize
+    def initialize(size)
+      case size
+      when 128
+        @num_rounds = 10
+        @key_size = 4
+      when 192
+        @num_rounds = 12
+        @key_size = 6
+      when 256
+        @num_rounds = 14
+        @key_size = 8
+      else
+        raise ArgumentError.new("Unknown encryption size")
+      end
+
       @log_table = Array(UInt8).new(size = 256, value = 0.to_u8)
       @antilog_table = Array(UInt8).new(size = 256, value = 0.to_u8)
 
