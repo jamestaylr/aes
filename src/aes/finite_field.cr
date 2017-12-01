@@ -1,9 +1,9 @@
 module AES
   struct FiniteField
-    property value : UInt16
+    property value : UInt8
 
     def initialize(value : Int)
-      @value = value.to_u16
+      @value = value.to_u8
     end
 
     def +(other)
