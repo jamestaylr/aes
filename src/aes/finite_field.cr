@@ -18,6 +18,10 @@ module AES
       FiniteField.new(value ^ other.value)
     end
 
+    def self.zero
+      FiniteField.new(0)
+    end
+
     def *(other)
       p = 0x0
       a = @value
