@@ -6,6 +6,10 @@ module AES
       @value = value.to_u8
     end
 
+    def value
+      @value.to_i32
+    end
+
     def +(other)
       FiniteField.new(value ^ other.value)
     end

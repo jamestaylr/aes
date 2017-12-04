@@ -8,7 +8,7 @@ describe AES::Utils do
         0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
       ]
       u = AES::Utils.new(128)
-      e = u.key_expansion(key.map { |x| x.to_u8 })
+      e = u.key_expansion(key)
       e.map { |j| j.to_s(16).rjust(2, '0') }.join.should eq [
         "000102030405060708090a0b0c0d0e0f",
         "d6aa74fdd2af72fadaa678f1d6ab76fe",
@@ -30,7 +30,7 @@ describe AES::Utils do
         0x8e, 0x53, 0xd1, 0x9e, 0x2a, 0x08, 0xe2, 0x00,
       ]
       u = AES::Utils.new(128)
-      e = u.key_expansion(key.map { |x| x.to_u8 })
+      e = u.key_expansion(key)
       e.map { |j| j.to_s(16).rjust(2, '0') }.join.should eq [
         "1ad3efa21ce55d9c8e53d19e2a08e200",
         "2b4b8c4737aed1dbb9fd004593f5e245",
@@ -54,7 +54,7 @@ describe AES::Utils do
         0x26, 0x37, 0x4c, 0x58, 0x1d, 0x7d,
       ]
       u = AES::Utils.new(192)
-      e = u.key_expansion(key.map { |x| x.to_u8 })
+      e = u.key_expansion(key)
       e.map { |j| j.to_s(16).rjust(2, '0') }.join.should eq [
         "4f5a524fa0653ddd7dd02adf6b9a6b76",
         "e4cc26374c581d7d24fead66849b90bb",
@@ -80,7 +80,7 @@ describe AES::Utils do
         0xc5, 0xb0, 0x7b, 0x56, 0xaa, 0x1e, 0x30, 0x0f,
       ]
       u = AES::Utils.new(256)
-      e = u.key_expansion(key.map { |x| x.to_u8 })
+      e = u.key_expansion(key)
       e.map { |j| j.to_s(16).rjust(2, '0') }.join.should eq [
         "54d1c20a0d7b90a27e8099bfec6245ad",
         "de4fcab68f6c18a2c5b07b56aa1e300f",
