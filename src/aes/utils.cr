@@ -35,6 +35,13 @@ module AES
       w.map { |j| AES::SBOX[j] }
     end
 
+    def add_round_key(blk : Array(Int), key : Array(Int), round : Int)
+      (0...NUM_COLUMNS * 4).each do |c|
+        blk[c] ^= key[(round * NUM_COLUMNS * 4) + c]
+      end
+      blk
+    end
+
     def mix_columns(blk : Array(Int))
       cols = [] of Array(FiniteField)
       blk.each_slice(4) { |j| cols << j.map { |k| FiniteField.new(k) } }
