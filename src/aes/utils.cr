@@ -38,14 +38,14 @@ module AES
     def mix_columns(blk : Array(Int))
       cols = [] of Array(FiniteField)
       blk.each_slice(4) { |j| cols << j.map { |k| FiniteField.new(k) } }
-      return cols.transpose.map do |col|
+      return cols.map do |col|
         MIX_TABLE.map do |row|
           a = row.map { |x| FiniteField.new(x) }.zip(col).sum do |r, c|
             r * c
           end
           a.value
         end
-      end.transpose.flatten
+      end.flatten
     end
 
     def rcon(round : Int)
