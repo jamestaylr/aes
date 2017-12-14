@@ -16,6 +16,7 @@ describe AES::FiniteField do
       (a + b).should eq AES::FiniteField.new(0b10011001)
     end
   end
+
   describe "#*" do
     it "should multiply" do
       a = AES::FiniteField.new(0b111)
