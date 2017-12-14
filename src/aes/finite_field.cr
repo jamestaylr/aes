@@ -41,5 +41,9 @@ module AES
       end
       FiniteField.new(p)
     end
+
+    def ==(other)
+      @value == other.value
+    end
   end
 end

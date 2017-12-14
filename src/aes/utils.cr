@@ -31,8 +31,27 @@ module AES
       w[1, 3] << w[0]
     end
 
+    def sub_bytes(blk : Array(Int))
+      cols = [] of Array(Int32)
+      blk.each_slice(4) { |j| cols << j }
+
+      cols.map { |w| sub_word(w) }.flatten
+    end
+
     def sub_word(w : Array(Int))
       w.map { |j| AES::SBOX[j] }
+    end
+
+    def shift_rows(blk : Array(Int))
+      cols = [] of Array(Int32)
+      blk.each_slice(4) { |j| cols << j }
+
+      b = cols.transpose.map_with_index do |r, i|
+        (0...i).each do
+          r = rot_word(r)
+        end
+        r
+      end.transpose.flatten
     end
 
     def add_round_key(blk : Array(Int), key : Array(Int), round : Int)
