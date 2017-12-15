@@ -2,6 +2,20 @@ module AES
   BASE_POLYNOMIAL = FiniteField.new(0b100011011)
   NUM_COLUMNS     = 4
 
+  # Modes
+  enum Mode
+    ECB
+    CBC
+
+    def ecb?
+      self == Mode::ECB
+    end
+
+    def cbc?
+      self == Mode::CBC
+    end
+  end
+
   # Mix Tables
   MIX_TABLE = [
     [0x02, 0x03, 0x01, 0x01],
