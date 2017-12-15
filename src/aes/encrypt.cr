@@ -6,21 +6,47 @@ module AES
       puts(fmt.join(""))
     end
 
-    def encrypt(plaintext : Array(Int), key : Array(Int))
+    def process(plaintext : Array(Int), key : Array(Int))
       blks = [] of Array(Int32)
       plaintext.each_slice(16) { |j| blks << j }
 
       init_vector = Array(Int32).new(16, 0)
       blks.map do |blk|
+        # TODO create block generator
         blk.concat(blk.size != 16 ? Array(Int32).new(size = 16 - blk.size,
           value = 0) : [] of Int32)
-        tmp = blk.zip(init_vector).map { |j, k| j ^ k }
-        encrypted = encrypt_block(tmp, key)
-        if @mode.cbc?
-          init_vector = encrypted
+
+        if @mode.cbc? && @process.encrypt?
+          blk = blk.zip(init_vector).map { |j, k| j ^ k }
         end
-        encrypted
+
+        if @process.encrypt?
+          processed = encrypt_block(blk.clone, key)
+        else
+          processed = decrypt_block(blk.clone, key)
+        end
+
+        if @mode.cbc? && @process.encrypt?
+          init_vector = processed
+        elsif @mode.cbc? && @process.decrypt?
+          processed = processed.zip(init_vector).map { |j, k| j ^ k }
+          init_vector = blk
+        end
+        processed
       end.flatten
+    end
+
+    def decrypt_block(plaintext : Array(Int), key : Array(Int))
+      expanded = key_expansion(key)
+      state = add_round_key(plaintext, expanded, @num_rounds)
+
+      (1...@num_rounds).reverse_each do |i|
+        # TODO OOP or functional method chaining
+        state = sub_bytes(shift_rows(state))
+        state = mix_columns(add_round_key(state, expanded, i))
+      end
+      state = sub_bytes(shift_rows(state))
+      add_round_key(state, expanded, 0)
     end
 
     def encrypt_block(plaintext : Array(Int), key : Array(Int))
@@ -29,15 +55,11 @@ module AES
 
       (1...@num_rounds).each do |i|
         # TODO OOP or functional method chaining
-        state = sub_bytes(state)
-        state = shift_rows(state)
-        state = mix_columns(state)
-        state = add_round_key(state, expanded, i)
+        state = shift_rows(sub_bytes(state))
+        state = add_round_key(mix_columns(state), expanded, i)
       end
-      state = sub_bytes(state)
-      state = shift_rows(state)
-      state = add_round_key(state, expanded, @num_rounds)
-      state
+      state = shift_rows(sub_bytes(state))
+      add_round_key(state, expanded, @num_rounds)
     end
   end
 end

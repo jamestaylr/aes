@@ -1,6 +1,6 @@
 module AES
   class Utils
-    def initialize(size)
+    def initialize(size, mode = AES::Mode::ECB, process = AES::Process::Encrypt)
       case size
       when 128
         @num_rounds = 10
@@ -14,6 +14,8 @@ module AES
       else
         raise ArgumentError.new("Unknown encryption size")
       end
+      @mode = mode
+      @process = process
 
       @log_table = Array(Int32).new(size = 256, value = 0)
       @antilog_table = Array(Int32).new(size = 256, value = 0)
@@ -27,8 +29,12 @@ module AES
       end
     end
 
-    def rot_word(w : Array(Int))
-      w[1, 3] << w[0]
+    def rot_word(w : Array(Int), inv? = @process.decrypt?)
+      if inv?
+        w[0, 3].insert(0, w[3])
+      else
+        w[1, 3] << w[0]
+      end
     end
 
     def sub_bytes(blk : Array(Int))
@@ -38,8 +44,9 @@ module AES
       cols.map { |w| sub_word(w) }.flatten
     end
 
-    def sub_word(w : Array(Int))
-      w.map { |j| AES::SBOX[j] }
+    def sub_word(w : Array(Int), inv? = @process.decrypt?)
+      sbox_table = inv? ? AES::SBOX_INV : AES::SBOX
+      w.map { |j| sbox_table[j] }
     end
 
     def shift_rows(blk : Array(Int))
@@ -64,8 +71,9 @@ module AES
     def mix_columns(blk : Array(Int))
       cols = [] of Array(FiniteField)
       blk.each_slice(4) { |j| cols << j.map { |k| FiniteField.new(k) } }
+      table = @process.encrypt? ? MIX_TABLE : MIX_TABLE_INV
       return cols.map do |col|
-        MIX_TABLE.map do |row|
+        table.map do |row|
           a = row.map { |x| FiniteField.new(x) }.zip(col).sum do |r, c|
             r * c
           end
@@ -83,6 +91,7 @@ module AES
     end
 
     def key_expansion(key : Array(Int))
+      inv? = false
       w = Array(Int32).new(4 * AES::NUM_COLUMNS * (@num_rounds + 1), 0)
       w.fill(0, 4 * @key_size) { |j| key[j] }
 
@@ -92,10 +101,10 @@ module AES
         ekp = (0...4).map { |j| w[((i - @key_size) * 4) + j] }
 
         if i % @key_size == 0
-          ekc = sub_word(rot_word(ekc))
+          ekc = sub_word(rot_word(ekc, inv?), inv?)
           ekc[0] ^= rcon((i / @key_size) - 1)
         elsif @key_size == 8 && i % 4 == 0
-          ekc = sub_word(ekc)
+          ekc = sub_word(ekc, inv?)
         else
           ekc = ekc.map { |j| j.to_i32 }
         end

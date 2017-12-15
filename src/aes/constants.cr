@@ -16,6 +16,19 @@ module AES
     end
   end
 
+  enum Process
+    Encrypt
+    Decrypt
+
+    def encrypt?
+      self == Process::Encrypt
+    end
+
+    def decrypt?
+      self == Process::Decrypt
+    end
+  end
+
   # Mix Tables
   MIX_TABLE = [
     [0x02, 0x03, 0x01, 0x01],
