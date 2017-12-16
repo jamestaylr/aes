@@ -1,19 +1,23 @@
 module AES
   class Utils
-    def initialize(size, mode = AES::Mode::ECB, process = AES::Process::Encrypt)
-      case size
-      when 128
+    def initialize(key : Array(Int32), mode = AES::Mode::ECB, process = AES::Process::Encrypt)
+      case key.size
+      when 16
+        # 128 bit
         @num_rounds = 10
         @key_size = 4
-      when 192
+      when 24
+        # 192 bit
         @num_rounds = 12
         @key_size = 6
-      when 256
+      when 32
+        # 256 bit
         @num_rounds = 14
         @key_size = 8
       else
-        raise ArgumentError.new("Unknown encryption size")
+        raise ArgumentError.new("Unknown key size #{key.size}")
       end
+      @key = key
       @mode = mode
       @process = process
 

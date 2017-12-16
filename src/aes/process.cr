@@ -6,12 +6,12 @@ module AES
       puts(fmt.join(""))
     end
 
-    def process(plaintext : Array(Int), key : Array(Int))
+    def process(input : Array(Int))
       blks = [] of Array(Int32)
-      plaintext.each_slice(16) { |j| blks << j }
+      input.each_slice(16) { |j| blks << j }
 
       init_vector = Array(Int32).new(16, 0)
-      expanded_key = key_expansion(key)
+      expanded_key = key_expansion(@key)
       blks.map do |blk|
         # TODO create block generator
         blk.concat(blk.size != 16 ? Array(Int32).new(size = 16 - blk.size,
