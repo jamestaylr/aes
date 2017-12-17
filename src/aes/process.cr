@@ -6,14 +6,23 @@ module AES
       puts(fmt.join(""))
     end
 
+    # Performs the encryption or decryption process on *input*
+    #
+    # - *input* be of indeterminate size and will be padded with zeros
+    # - Correctly performs with XOR with the initialization vector
+    # - Contains logic for handling both `Mode#ECB` and `Mode#CBC` modes
+    #
+    # TODO create block generator
     def process(input : Array(Int))
+      # Breaks the array into blocks of 16 elements representing bytes
       blks = [] of Array(Int32)
       input.each_slice(16) { |j| blks << j }
 
+      # Setup initial parameters
       init_vector = Array(Int32).new(16, 0)
       expanded_key = key_expansion(@key)
       blks.map do |blk|
-        # TODO create block generator
+        # Pad the block if required
         blk.concat(blk.size != 16 ? Array(Int32).new(size = 16 - blk.size,
           value = 0) : [] of Int32)
 
@@ -39,11 +48,15 @@ module AES
       end.flatten
     end
 
-    def decrypt_block(plaintext : Array(Int), expanded_key : Array(Int))
-      state = add_round_key(plaintext, expanded_key, @num_rounds)
+    # Decrypts a ciphertext block
+    #
+    # Calls the appropriate AES helper functions in inverse order
+    #
+    # TODO OOP or functional method chaining
+    def decrypt_block(ciphertext : Array(Int), expanded_key : Array(Int))
+      state = add_round_key(ciphertext, expanded_key, @num_rounds)
 
       (1...@num_rounds).reverse_each do |i|
-        # TODO OOP or functional method chaining
         state = sub_bytes(shift_rows(state))
         state = mix_columns(add_round_key(state, expanded_key, i))
       end
@@ -51,11 +64,15 @@ module AES
       add_round_key(state, expanded_key, 0)
     end
 
+    # Encrypts a plaintext block
+    #
+    # Calls the appropriate AES helper functions
+    #
+    # TODO OOP or functional method chaining
     def encrypt_block(plaintext : Array(Int), expanded_key : Array(Int))
       state = add_round_key(plaintext, expanded_key, 0)
 
       (1...@num_rounds).each do |i|
-        # TODO OOP or functional method chaining
         state = shift_rows(sub_bytes(state))
         state = add_round_key(mix_columns(state), expanded_key, i)
       end

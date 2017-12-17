@@ -2,26 +2,36 @@ module AES
   struct FiniteField
     property value : UInt8
 
+    # Create a new object
+    #
+    # Must have a value which fits in `UInt8` less than 255 or a byte
     def initialize(value : Int)
       @value = value.to_u8
     end
 
+    # Return the `Int32` value of the object
     def value
       @value.to_i32
     end
 
+    # Add with *other*
     def +(other)
       FiniteField.new(value ^ other.value)
     end
 
+    # Subtract with *other*
     def -(other)
       FiniteField.new(value ^ other.value)
     end
 
+    # Return the zero valued object
     def self.zero
       FiniteField.new(0)
     end
 
+    # Multiply with *other*
+    #
+    # OPTIMIZE use log and antilog table during GF(2^8) computation
     def *(other)
       p = 0x0
       a = @value
@@ -42,6 +52,7 @@ module AES
       FiniteField.new(p)
     end
 
+    # Check equality against *other*
     def ==(other)
       @value == other.value
     end
